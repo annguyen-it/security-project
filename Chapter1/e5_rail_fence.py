@@ -2,8 +2,6 @@ import math
 import string
 import textwrap
 
-alphabet = string.ascii_lowercase
-
 
 def encrypt(plain_text: str, k: int) -> str:
     cypher_text = ''
@@ -39,6 +37,7 @@ def decrypt(cypher_text: str, k: int) -> str:
 
 
 if __name__ == '__main__':
+    alphabet = string.ascii_lowercase
     key = 8
     result = encrypt('donttroubletrouble', key)
     print(result)

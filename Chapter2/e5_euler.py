@@ -1,9 +1,9 @@
 from functions import are_relatively_prime
-from euler_function import calc_fi
-from Chapter2.ha_bac import calc_module
+from e4_euler_function import calc_fi
+from Chapter2.e1_ha_bac import calc_module
 
 
-def calc_euler_module(a: int, m: int, n: int) -> int:
+def calc_euler_modulo(a: int, m: int, n: int) -> int:
     fi_n = calc_fi(n)
     new_exp = fi_n
 
@@ -17,5 +17,5 @@ def calc_euler_module(a: int, m: int, n: int) -> int:
 
 
 if __name__ == '__main__':
-    res = calc_euler_module(26, 3369, 363)
+    res = calc_euler_modulo(26, 3369, 363)
     print(res)
