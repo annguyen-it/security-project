@@ -59,3 +59,7 @@ def xor(a: str, b: str) -> str:
     for i in range(len(a)):
         res += '0' if a[i] == b[i] else '1'
     return res
+
+
+def group(arr: [], length: int):
+    return [arr[n:n + length] for n in range(0, len(arr), length)]
