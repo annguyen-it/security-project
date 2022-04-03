@@ -1,17 +1,27 @@
-from functions import hex_to_bin, bin_to_hex, xor, dec_to_bin
+from functions import hex_to_bin, xor, dec_to_bin, bin_to_hex
 import textwrap
+
+inverse_initial_permutation = [
+    40, 8, 48, 16, 56, 24, 64, 32,
+    39, 7, 47, 15, 55, 23, 63, 31,
+    38, 6, 46, 14, 54, 22, 62, 30,
+    37, 5, 45, 13, 53, 21, 61, 29,
+    36, 4, 44, 12, 52, 20, 60, 28,
+    35, 3, 43, 11, 51, 19, 59, 27,
+    34, 2, 42, 10, 50, 18, 58, 26,
+    33, 1, 41, 9, 49, 17, 57, 25
+]
 
 # E
 const_expansion_permutation = [
-    32, 1, 2, 3, 4, 5,
-    4, 5, 6, 7, 8, 9,
-    8, 9, 10, 11, 12, 13,
-    12, 13, 14, 15, 16, 17,
-    16, 17, 18, 19, 20, 21,
-    20, 21, 22, 23, 24, 25,
-    24, 25, 26, 27, 28, 29,
-    28, 29, 30, 31, 32, 1
+    32, 1, 2, 3, 4, 5, 4, 5,
+    6, 7, 8, 9, 8, 9, 10, 11,
+    12, 13, 12, 13, 14, 15, 16, 17,
+    16, 17, 18, 19, 20, 21, 20, 21,
+    22, 23, 24, 25, 24, 25, 26, 27,
+    28, 29, 28, 29, 30, 31, 32, 1
 ]
+# IP
 const_initial_permutation = [
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
@@ -34,7 +44,7 @@ const_s_box = [
         14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7,
         0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8,
         4, 1, 14, 8, 13, 6, 2, 11, 15, 12, 9, 7, 3, 10, 5, 0,
-        15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13,
+        15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13
     ], [
         15, 1, 8, 14, 6, 11, 3, 4, 9, 7, 2, 13, 12, 0, 5, 10,
         3, 13, 4, 7, 15, 2, 8, 14, 12, 0, 1, 10, 6, 9, 11, 5,
@@ -96,14 +106,17 @@ permuted_choice_two = [
 ]
 
 
-def permuted(value: str, mat: [int], parse_bin=False) -> str:
+def permuted(value: str, mat, parse_bin=False) -> str:
+    res = ''
     if parse_bin:
         value = hex_to_bin(value)
-    return "".join([value[i - 1] for i in mat])
+    for i in range(len(mat)):
+        res += value[mat[i] - 1]
+    return res
 
 
-def split(value) -> (str, str):
-    return tuple(textwrap.wrap(value, len(value) // 2))
+def split(value):
+    return textwrap.wrap(value, len(value) // 2)
 
 
 def left_shift_str(s: str, bits: int) -> str:
@@ -127,9 +140,9 @@ def sub(s: str) -> str:
     calc_r_split = textwrap.wrap(s, 6)
     res = ''
     for i in range(8):
+        row = int(calc_r_split[i][0] + calc_r_split[i][5], 2)
+        col = int(calc_r_split[i][1:5], 2)
         s_box = const_s_box[i]
-        row = int(calc_r_split[i][:2], 2)
-        col = int(calc_r_split[i][2:], 2)
         res += dec_to_bin(s_box[row * 16 + col])
     return res
 
@@ -138,31 +151,71 @@ def p(text: str) -> str:
     return permuted(text, const_permutation_function)
 
 
-def encrypt(plain_text: str, k: str, _round: int) -> (str, str):
+def gen_key(k: str) -> [str]:
+    lst_k = []
     k = permuted(k, permuted_choice_one, True)
+
+    for i in range(1, 17):
+        c, d = split(k)
+        c, d = shift_left(c, d, i)
+        lst_k.append(permuted(c + d, permuted_choice_two))
+        k = c + d
+
+    return lst_k
+
+
+def encrypt(plain_text: str, k: str):
+    cypher_text = ''
+    plain_text = permuted(plain_text, const_initial_permutation, True)
+    l, r = split(plain_text)
+    key_list = gen_key(k)
+
+    print('Encrypt')
+    for i in range(1, 17):
+        # calc_plaintext
+        new_l = r
+
+        r = permuted(r, const_expansion_permutation)
+        r = xor(r, key_list[i - 1])
+        r = sub(r)
+        r = permuted(r, const_permutation_function)
+
+        new_r = xor(r, l)
+        l, r = new_l, new_r
+        print('Round ' + str(i), bin_to_hex(l), bin_to_hex(r), bin_to_hex(key_list[i - 1]))
+
+    l, r = r, l
+    cypher_text += permuted(l + r, inverse_initial_permutation)
+
+    return cypher_text
+
+
+def decryption(cypher_text: str, k: str):
+    plain_text = ''
+    cypher_text = permuted(cypher_text, const_initial_permutation, True)
+    l, r = split(cypher_text)
+    key_list = gen_key(k)
+
+    print('Decrypt')
+    for i in range(1, 17):
+        new_l = r
+
+        r = permuted(r, const_expansion_permutation)
+        r = xor(r, key_list[16 - i])
+        r = sub(r)
+        r = permuted(r, const_permutation_function)
+
+        new_r = xor(l, r)
+        l, r = new_l, new_r
+        print('Round ' + str(i), bin_to_hex(l), bin_to_hex(r), bin_to_hex(key_list[i - 1]))
+
+    l, r = r, l
+    plain_text += permuted(l + r, inverse_initial_permutation)
+
+    return plain_text
 
 
 if __name__ == '__main__':
-    m = '123456ABCD132536'
-    k = 'AABB09182736CCDD'
-    cd, k = gen_key(k, 1)
-    l, r = encrypt(m, k, 1)
-    inverse_initial_permutation = [
-        40, 8, 48, 16, 56, 24, 64, 32,
-        39, 7, 47, 15, 55, 23, 63, 31,
-        38, 6, 46, 14, 54, 22, 62, 30,
-        37, 5, 45, 13, 53, 21, 61, 29,
-        36, 4, 44, 12, 52, 20, 60, 28,
-        35, 3, 43, 11, 51, 19, 59, 27,
-        34, 2, 42, 10, 50, 18, 58, 26,
-        33, 1, 41, 9, 49, 17, 57, 25
-    ]
-
-    for i in range(2, 17):
-        cd, k = gen_key(cd, i)
-        l, r = encrypt(l + r, k, i)
-        print(''.join([bin_to_hex(i) for i in textwrap.wrap(l + r, 4)]))
-
-    l, r = r, l
-    result = ''.join([bin_to_hex(i) for i in textwrap.wrap(permuted(l + r, inverse_initial_permutation), 4)])
-    print(result)
+    output = bin_to_hex(encrypt('02468aceeca86420', '0f1571c947d9e859'))
+    print(output)
+    print(bin_to_hex(decryption(output, '0f1571c947d9e859')))
