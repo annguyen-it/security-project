@@ -1,7 +1,5 @@
 import string
-
-alphabet = string.ascii_lowercase
-key_mat = [[] for _ in range(5)]
+import textwrap
 
 
 def find_in_key_mat(c: str) -> (int, int):
@@ -38,7 +36,7 @@ def init_key_mat(k: str) -> None:
                 row = insert_key_mat(c, row)
 
 
-def encrypt(plain_text: str, k: str) -> str:
+def encrypt(plain_text: str) -> str:
     cypher_text = ''
     i = 0
     char_pair = []
@@ -46,12 +44,12 @@ def encrypt(plain_text: str, k: str) -> str:
         if plain_text[i] != plain_text[i + 1]:
             char_pair.append(plain_text[i] + plain_text[i + 1])
         else:
-            char_extra = 'x' if plain_text[i] != 'x' else 'b'
+            char_extra = 'x' if plain_text[i] != 'x' else 'p'
             plain_text = plain_text[:i + 1] + char_extra + plain_text[i + 1:]
             char_pair.append(plain_text[i] + plain_text[i + 1])
         i += 2
         if i == len(plain_text) - 1:
-            char_extra = 'x' if plain_text[i] != 'x' else 'b'
+            char_extra = 'x' if plain_text[i] != 'x' else 'p'
             char_pair.append(plain_text[i] + char_extra)
             break
         elif i > len(plain_text) - 1:
@@ -73,25 +71,40 @@ def encrypt(plain_text: str, k: str) -> str:
             cypher_text += key_mat[new_row_0][col] + key_mat[new_row_1][col]
         else:
             cypher_text += key_mat[p0[0]][p1[1]] + key_mat[p1[0]][p0[1]]
-            print(cypher_text)
 
     return cypher_text
 
 
-def decrypt(cypher_text: str, k: str) -> str:
+def decrypt(cypher_text: str) -> str:
+    char_pair = textwrap.wrap(cypher_text, 2)
     plain_text = ''
-    for i in range(len(cypher_text)):
-        current_char = cypher_text[i]
-        index_in_key = k.index(current_char)
-        plain_text += alphabet[index_in_key]
+
+    for pair in char_pair:
+        p0 = find_in_key_mat(pair[0])
+        p1 = find_in_key_mat(pair[1])
+
+        if p0[0] == p1[0]:
+            row = p0[0]
+            new_col_0 = (p0[1] - 1) % 5
+            new_col_1 = (p1[1] - 1) % 5
+            plain_text += key_mat[row][new_col_0] + key_mat[row][new_col_1]
+        elif p0[1] == p1[1]:
+            col = p0[1]
+            new_row_0 = (p0[0] - 1) % 5
+            new_row_1 = (p1[0] - 1) % 5
+            plain_text += key_mat[new_row_0][col] + key_mat[new_row_1][col]
+        else:
+            plain_text += key_mat[p0[0]][p1[1]] + key_mat[p1[0]][p0[1]]
     return plain_text
 
 
 if __name__ == '__main__':
+    alphabet = string.ascii_lowercase
+    key_mat = [[] for _ in range(5)]
     key = 'monarchy'
     init_key_mat(key)
 
-    result = encrypt('balloon', key)
+    result = encrypt('balloon')
     print(result)
-    # result2 = decrypt(result, key)
-    # print(result2)
+    result2 = decrypt(result)
+    print(result2)

@@ -36,15 +36,17 @@ InvSbox = (
     0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D,
 )
 
-# learnt from http://cs.ucsb.edu/~koc/cs178/projects/JT/aes.c
-xtime = lambda a: (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
-
 Rcon = (
     0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
-    0x80, 0x1B, 0x36, 0x6C, 0xD8, 0xAB, 0x4D, 0x9A,
-    0x2F, 0x5E, 0xBC, 0x63, 0xC6, 0x97, 0x35, 0x6A,
-    0xD4, 0xB3, 0x7D, 0xFA, 0xEF, 0xC5, 0x91, 0x39,
+    0x80, 0x1B, 0x36
 )
+
+
+def shift_left(a: int) -> int:
+    # if a >= 128
+    if a & 0x80:
+        return ((a << 1) ^ 0x1B) & 0xFF
+    return a << 1
 
 
 def text2matrix(text):
@@ -108,7 +110,7 @@ def decrypt(ciphertext, round_keys):
     inv_sub_bytes(cipher_state)
 
     for i in range(9, 0, -1):
-        __round_decrypt(cipher_state, round_keys[4 * i: 4 * (i + 1)])
+        round_decrypt(cipher_state, round_keys[4 * i: 4 * (i + 1)])
 
     add_round_key(cipher_state, round_keys[:4])
 
@@ -128,7 +130,7 @@ def round_encrypt(state_matrix, key_matrix):
     add_round_key(state_matrix, key_matrix)
 
 
-def __round_decrypt(state_matrix, key_matrix):
+def round_decrypt(state_matrix, key_matrix):
     add_round_key(state_matrix, key_matrix)
     inv_mix_columns(state_matrix)
     inv_shift_rows(state_matrix)
@@ -163,10 +165,10 @@ def mix_single_column(a):
     # please see Sec 4.1.2 in The Design of Rijndael
     t = a[0] ^ a[1] ^ a[2] ^ a[3]
     u = a[0]
-    a[0] ^= t ^ xtime(a[0] ^ a[1])
-    a[1] ^= t ^ xtime(a[1] ^ a[2])
-    a[2] ^= t ^ xtime(a[2] ^ a[3])
-    a[3] ^= t ^ xtime(a[3] ^ u)
+    a[0] ^= t ^ shift_left(a[0] ^ a[1])
+    a[1] ^= t ^ shift_left(a[1] ^ a[2])
+    a[2] ^= t ^ shift_left(a[2] ^ a[3])
+    a[3] ^= t ^ shift_left(a[3] ^ u)
 
 
 def mix_columns(s):
@@ -178,8 +180,8 @@ def mix_columns(s):
 def inv_mix_columns(s):
     # see Sec 4.1.3 in The Design of Rijndael
     for i in range(4):
-        u = xtime(xtime(s[i][0] ^ s[i][2]))
-        v = xtime(xtime(s[i][1] ^ s[i][3]))
+        u = shift_left(shift_left(s[i][0] ^ s[i][2]))
+        v = shift_left(shift_left(s[i][1] ^ s[i][3]))
         s[i][0] ^= u
         s[i][1] ^= v
         s[i][2] ^= u

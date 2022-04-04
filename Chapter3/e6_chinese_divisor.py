@@ -1,15 +1,16 @@
+from Chapter3.e1_ha_bac import calc_module
 from functions import analysis, test
 from Chapter3.e7_solve_set_of_equations import solve_set_of_equations
 
 
 def calc_chinese_divisor(a: int, k: int, n: int) -> int:
-    A = pow(a, k)
-
     prime_numbers = analysis(n)
     m = []
-    for key in prime_numbers:
-        m.append(pow(key, prime_numbers[key]))
-    a = [A % i for i in m]
+    for num in prime_numbers:
+        m.append(pow(num, prime_numbers[num]))
+    # A = a^k
+    # a[i] = A mod m[i]
+    a = [calc_module(a, k, i) for i in m]
 
     return solve_set_of_equations(m, a)
 

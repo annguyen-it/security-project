@@ -2,6 +2,7 @@ from Chapter3.e4_euler_function import calc_fi
 from functions import test, are_relatively_prime, find_divisor
 
 
+# a là căn nguyên thủy của n
 def calc_origin_root(a: int, n: int) -> bool:
     if not are_relatively_prime(a, n):
         return False

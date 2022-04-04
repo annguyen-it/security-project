@@ -1,11 +1,12 @@
 from Chapter3.e1_ha_bac import calc_module
 
 
-def calc_fermat_module(a: int, m: int, n: int) -> int:
+# a^(p-1) mod p = 1
+def calc_fermat_module(a: int, m: int, p: int) -> int:
     new_exp = m
-    if m > n:
-        new_exp = m % (n - 1)
-    return calc_module(a, new_exp, n)
+    if m > p:
+        new_exp = m % (p - 1)
+    return calc_module(a, new_exp, p)
 
 
 if __name__ == '__main__':

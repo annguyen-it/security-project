@@ -3,7 +3,7 @@ from Chapter3.e5_euler import calc_euler_modulo
 from functions import test
 
 
-def discrete_logarithm(a: int, b: int, x: int, y: int, n: int) -> [int]:
+def calculate_modulo(a: int, b: int, x: int, y: int, n: int) -> [int]:
     ax = calc_euler_modulo(a, x, n)
     by = calc_euler_modulo(b, y, n)
 
@@ -17,5 +17,5 @@ def discrete_logarithm(a: int, b: int, x: int, y: int, n: int) -> [int]:
 
 if __name__ == '__main__':
     result_test = [287, 225, 25, 17, 250]
-    result = discrete_logarithm(53, 31, 336, 585, 293)
+    result = calculate_modulo(53, 31, 336, 585, 293)
     test(result_test, result)

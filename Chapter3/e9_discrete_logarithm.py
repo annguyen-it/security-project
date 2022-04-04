@@ -3,6 +3,7 @@ from typing import Optional
 from functions import test
 
 
+# dlog(a) b mod n = x khi a^x mod n = b mod n
 def discrete_logarithm(a: int, b: int, n: int) -> Optional[int]:
     for i in range(n):
         if pow(a, i) % n == b % n:

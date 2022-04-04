@@ -7,6 +7,7 @@ def solve_set_of_equations(m: [int], a: [int]) -> [int]:
     for i in m:
         n *= i
 
+    # M[i] = n / m[i]
     M = [n // i for i in m]
     c = []
     for i in range(len(m)):
