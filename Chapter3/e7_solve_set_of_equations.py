@@ -1,4 +1,4 @@
-from Chapter2.e2_extended_euclid import calc_extended_euclid
+from Chapter3.e2_extended_euclid import calc_extended_euclid
 from functions import test
 
 

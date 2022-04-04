@@ -1,5 +1,5 @@
-from Chapter2.e2_extended_euclid import calc_extended_euclid
-from Chapter2.e5_euler import calc_euler_modulo
+from Chapter3.e2_extended_euclid import calc_extended_euclid
+from Chapter3.e5_euler import calc_euler_modulo
 from functions import test
 
 

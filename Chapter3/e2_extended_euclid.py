@@ -1,6 +1,7 @@
 from typing import Optional
 
 
+# a^-1 mod n
 def calc_extended_euclid(a: int, n: int) -> Optional[int]:
     a2, a3 = 0, n
     b2, b3 = 1, a

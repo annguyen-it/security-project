@@ -1,4 +1,4 @@
-from Chapter2.e1_ha_bac import calc_module
+from Chapter3.e1_ha_bac import calc_module
 
 
 def calc_fermat_module(a: int, m: int, n: int) -> int:

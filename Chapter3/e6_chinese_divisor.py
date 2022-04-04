@@ -1,5 +1,5 @@
 from functions import analysis, test
-from Chapter2.e7_solve_set_of_equations import solve_set_of_equations
+from Chapter3.e7_solve_set_of_equations import solve_set_of_equations
 
 
 def calc_chinese_divisor(a: int, k: int, n: int) -> int:

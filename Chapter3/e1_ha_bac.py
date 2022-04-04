@@ -1,3 +1,4 @@
+# a^m mod n
 def calc_module(a: int, m: int, n: int) -> int:
     if m == 1:
         return a % n

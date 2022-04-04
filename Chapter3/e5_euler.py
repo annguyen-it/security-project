@@ -1,6 +1,6 @@
 from functions import are_relatively_prime
 from e4_euler_function import calc_fi
-from Chapter2.e1_ha_bac import calc_module
+from Chapter3.e1_ha_bac import calc_module
 
 
 def calc_euler_modulo(a: int, m: int, n: int) -> int:
